@@ -1,0 +1,28 @@
+name: Import upstream snapshot
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Import public-apis snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote add upstream https://github.com/public-apis/public-apis.git
+          git fetch --depth=1 upstream 7ee71f04dd42720f7f4130aa70f804aa95c53164
+          git rm -rf .
+          git checkout FETCH_HEAD -- .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Import public-apis snapshot 7ee71f04dd42720f7f4130aa70f804aa95c53164"
+          git push origin HEAD:main
